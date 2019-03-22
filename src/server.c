@@ -294,7 +294,7 @@ reset_addr(int fd)
 }
 
 static void
-report_addr(int fd, int err_level, const char *info)
+report_addr(int fd, int err_level)
 {
 #ifdef __linux__
     set_linger(fd);
@@ -303,10 +303,17 @@ report_addr(int fd, int err_level, const char *info)
     char *peer_name;
     peer_name = get_peer_name(fd);
     if (peer_name != NULL) {
-        LOGE("failed to handshake with %s: %s", peer_name, info);
+                if (err_level == SUSPICIOUS)
+        {
+            LOGE("timeout to handshake with %s err_level %d", peer_name, err_level);
+        }
+        else
+        {
+            LOGE("failed to handshake with %s err_level %d", peer_name, err_level);
         // Avoid block local plugins
         if (strcmp(peer_name, "127.0.0.1") != 0)
             update_block_list(peer_name, err_level);
+     }
     }
 }
 
